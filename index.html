@@ -1,0 +1,1923 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0F766E" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Din Din" />
+  <title>Din Din — Controle de Geladinhos & Fiado</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'] },
+          colors: {
+            brand: {
+              50: '#F0FDFA',
+              100: '#CCFBF1',
+              200: '#99F6E4',
+              500: '#14B8A6',
+              600: '#0D9488',
+              700: '#0F766E',
+              800: '#115E59',
+              900: '#134E4A',
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    * { -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: #EEF2F6;
+      color: #0F172A;
+      overscroll-behavior-y: none;
+    }
+    .app-shell {
+      max-width: 460px;
+      margin: 0 auto;
+      min-height: 100vh;
+      min-height: 100dvh;
+      background: #F8FAFC;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 40px rgba(15, 23, 42, 0.08);
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    @keyframes slideUp {
+      from { transform: translateY(24px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .animate-slide-up { animation: slideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1); }
+    .animate-fade-in { animation: fadeIn 0.18s ease-out; }
+    .safe-bottom { padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
+    .nav-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+    .tap-btn:active { transform: scale(0.96); }
+    .tap-btn { transition: transform 0.1s ease, background-color 0.15s ease, box-shadow 0.15s ease; }
+  </style>
+</head>
+<body>
+  <div class="app-shell" id="appRoot">
+    <!-- Top Header -->
+    <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-10 h-10 rounded-2xl overflow-hidden shadow-sm shrink-0 ring-1 ring-brand-700/15 bg-brand-800">
+          <img src="icons/icon-192.png" alt="Din Din" class="w-full h-full object-cover" />
+        </div>
+        <div>
+          <h1 class="text-lg font-extrabold tracking-tight text-slate-900 leading-tight">Din Din</h1>
+          <p class="text-[11px] font-medium text-slate-500 flex items-center gap-1.5" id="headerSubtitle">
+            <span>Geladinho R$ 3,50</span>
+            <span class="text-slate-300">•</span>
+            <span id="headerClock">--:--</span>
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="btnHeaderAlert" type="button" class="tap-btn relative px-2.5 py-1.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold flex items-center gap-1.5 hover:bg-amber-100" title="Abrir fechamento das 16h">
+          <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"/></svg>
+          <span id="headerAlertTime">16h</span>
+          <span id="headerPendingBadge" class="hidden min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center">0</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Scrollable Content -->
+    <main id="mainContent" class="flex-1 px-4 pt-4 safe-bottom space-y-4">
+      <!-- Views rendered dynamically -->
+    </main>
+
+    <!-- Floating Quick Add Button (Visible on Hoje & Fiado) -->
+    <button id="fabNewSale" type="button" class="tap-btn fixed bottom-[84px] right-4 sm:right-[max(1rem,calc(50%-214px))] z-30 h-14 px-5 rounded-full bg-brand-700 hover:bg-brand-800 text-white font-bold text-sm shadow-lg shadow-brand-900/25 flex items-center gap-2">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+      <span>Vender</span>
+    </button>
+
+    <!-- Bottom Navigation -->
+    <nav class="nav-bottom fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[460px] z-30 bg-white/95 backdrop-blur-md border-t border-slate-200 grid grid-cols-4 h-[68px]">
+      <button type="button" data-tab="hoje" class="nav-btn flex flex-col items-center justify-center gap-1 text-brand-700 font-semibold">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg>
+        <span class="text-[11px]">Hoje</span>
+      </button>
+      <button type="button" data-tab="fiado" class="nav-btn relative flex flex-col items-center justify-center gap-1 text-slate-400 font-medium">
+        <div class="relative">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"/></svg>
+          <span id="navDebtBadge" class="hidden absolute -top-1.5 -right-2.5 min-w-[16px] h-4 px-1 rounded-full bg-amber-500 text-white text-[9px] font-bold flex items-center justify-center">0</span>
+        </div>
+        <span class="text-[11px]">Fiado</span>
+      </button>
+      <button type="button" data-tab="historico" class="nav-btn flex flex-col items-center justify-center gap-1 text-slate-400 font-medium">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+        <span class="text-[11px]">Histórico</span>
+      </button>
+      <button type="button" data-tab="ajustes" class="nav-btn flex flex-col items-center justify-center gap-1 text-slate-400 font-medium">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
+        <span class="text-[11px]">Ajustes</span>
+      </button>
+    </nav>
+
+    <!-- Modal Overlay Container -->
+    <div id="modalContainer" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-[2px] flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fade-in"></div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed top-16 left-1/2 -translate-x-1/2 z-[60] w-[92%] max-w-[420px] pointer-events-none flex flex-col gap-2"></div>
+
+    <!-- Hidden File Input for JSON Import -->
+    <input type="file" id="importJsonInput" accept="application/json,.json" class="hidden" />
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      const STORAGE_KEY = 'dindin_app_v1';
+
+      const DEFAULT_STATE = {
+        settings: {
+          unitPrice: 3.50,
+          pixKey: '07515446200',
+          sellerName: '',
+          alertTime: '16:00',
+          notificationsEnabled: false,
+          lastAlertDate: ''
+        },
+        customers: [],
+        transactions: [],
+        ui: {
+          tab: 'hoje',
+          fiadoFilter: 'todos',
+          fiadoSearch: '',
+          histFilter: 'hoje',
+          isSampleData: false
+        }
+      };
+
+      const FLAVORS = ['Ninho c/ Nutella', 'Maracujá', 'Morango', 'Coco', 'Chocolate', 'Oreo', 'Limão'];
+
+      let state = loadState();
+      let clockInterval = null;
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return structuredCloneFallback(DEFAULT_STATE);
+          const parsed = JSON.parse(raw);
+          return {
+            settings: Object.assign({}, DEFAULT_STATE.settings, parsed.settings || {}),
+            customers: Array.isArray(parsed.customers) ? parsed.customers : [],
+            transactions: Array.isArray(parsed.transactions) ? parsed.transactions : [],
+            ui: Object.assign({}, DEFAULT_STATE.ui, { isSampleData: !!(parsed.ui && parsed.ui.isSampleData) })
+          };
+        } catch (e) {
+          return structuredCloneFallback(DEFAULT_STATE);
+        }
+      }
+
+      function structuredCloneFallback(obj) {
+        return JSON.parse(JSON.stringify(obj));
+      }
+
+      function saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            settings: state.settings,
+            customers: state.customers,
+            transactions: state.transactions,
+            ui: { isSampleData: state.ui.isSampleData }
+          }));
+        } catch (e) {
+          // Ignore storage quota / sandbox restrictions gracefully
+        }
+      }
+
+      function roundMoney(n) {
+        const val = Number(n) || 0;
+        return Math.round(val * 100) / 100;
+      }
+
+      function fmtBRL(n) {
+        return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(roundMoney(n));
+      }
+
+      function uid() {
+        return 'id_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 7);
+      }
+
+      function todayISO() {
+        const d = new Date();
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+      }
+
+      function dateISOFromTimestamp(ts) {
+        const d = new Date(ts);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+      }
+
+      function fmtTime(ts) {
+        const d = new Date(ts);
+        return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      }
+
+      function fmtShortDate(ts) {
+        const d = new Date(ts);
+        const today = todayISO();
+        const iso = dateISOFromTimestamp(ts);
+        if (iso === today) return 'Hoje, ' + fmtTime(ts);
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        if (iso === dateISOFromTimestamp(yesterday.getTime())) return 'Ontem, ' + fmtTime(ts);
+        return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' ' + fmtTime(ts);
+      }
+
+      function daysSince(ts) {
+        if (!ts) return 0;
+        const now = new Date();
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        const d = new Date(ts);
+        const startOfThatDay = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+        return Math.max(0, Math.round((startOfToday - startOfThatDay) / 86400000));
+      }
+
+      function escapeHtml(str) {
+        return String(str || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function cleanPhone(phone) {
+        const digits = String(phone || '').replace(/\D/g, '');
+        if (!digits) return '';
+        if (digits.length === 10 || digits.length === 11) return '55' + digits;
+        return digits;
+      }
+
+      // Compute customer ledger from transactions for 100% consistency
+      function getCustomerStats() {
+        const map = {};
+        for (const c of state.customers) {
+          map[c.id] = {
+            customer: c,
+            balance: 0,
+            unpaidUnits: 0,
+            totalBoughtUnits: 0,
+            todayUnits: 0,
+            todayDebt: 0,
+            oldestUnpaidTs: null,
+            lastActivityTs: c.createdAt || 0
+          };
+        }
+
+        // Process chronologically
+        const sorted = [...state.transactions].sort((a, b) => a.timestamp - b.timestamp);
+        const today = todayISO();
+
+        for (const tx of sorted) {
+          if (!tx.customerId || !map[tx.customerId]) continue;
+          const st = map[tx.customerId];
+          st.lastActivityTs = Math.max(st.lastActivityTs, tx.timestamp);
+
+          if (tx.type === 'sale_fiado') {
+            if (st.balance <= 0.005) {
+              st.oldestUnpaidTs = tx.timestamp;
+            }
+            st.balance = roundMoney(st.balance + tx.amount);
+            st.unpaidUnits = roundMoney(st.unpaidUnits + tx.qty);
+            st.totalBoughtUnits += tx.qty;
+            if (dateISOFromTimestamp(tx.timestamp) === today) {
+              st.todayUnits += tx.qty;
+              st.todayDebt = roundMoney(st.todayDebt + tx.amount);
+            }
+          } else if (tx.type === 'sale_cash') {
+            st.totalBoughtUnits += tx.qty;
+            if (dateISOFromTimestamp(tx.timestamp) === today) {
+              st.todayUnits += tx.qty;
+            }
+          } else if (tx.type === 'payment') {
+            st.balance = roundMoney(Math.max(0, st.balance - tx.amount));
+            if (st.balance <= 0.005) {
+              st.balance = 0;
+              st.unpaidUnits = 0;
+              st.oldestUnpaidTs = null;
+            } else {
+              const refPrice = state.settings.unitPrice > 0 ? state.settings.unitPrice : 3.5;
+              st.unpaidUnits = Math.max(1, Math.round(st.balance / refPrice));
+            }
+          }
+        }
+        return map;
+      }
+
+      function getSummaryMetrics() {
+        const today = todayISO();
+        const now = new Date();
+        const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+        let soldTodayUnits = 0;
+        let soldTodayValue = 0;
+        let receivedTodayValue = 0;
+        let fiadoTodayUnits = 0;
+        let monthUnits = 0;
+        let monthValue = 0;
+        let monthReceived = 0;
+
+        for (const tx of state.transactions) {
+          const iso = dateISOFromTimestamp(tx.timestamp);
+          const isToday = iso === today;
+          const isMonth = iso.startsWith(currentMonth);
+
+          if (tx.type === 'sale_fiado' || tx.type === 'sale_cash') {
+            if (isToday) {
+              soldTodayUnits += tx.qty;
+              soldTodayValue = roundMoney(soldTodayValue + tx.amount);
+              if (tx.type === 'sale_fiado') fiadoTodayUnits += tx.qty;
+              if (tx.type === 'sale_cash') receivedTodayValue = roundMoney(receivedTodayValue + tx.amount);
+            }
+            if (isMonth) {
+              monthUnits += tx.qty;
+              monthValue = roundMoney(monthValue + tx.amount);
+              if (tx.type === 'sale_cash') monthReceived = roundMoney(monthReceived + tx.amount);
+            }
+          } else if (tx.type === 'payment') {
+            if (isToday) receivedTodayValue = roundMoney(receivedTodayValue + tx.amount);
+            if (isMonth) monthReceived = roundMoney(monthReceived + tx.amount);
+          }
+        }
+
+        const cStats = getCustomerStats();
+        const debtors = Object.values(cStats)
+          .filter(s => s.balance > 0.005)
+          .sort((a, b) => b.balance - a.balance);
+
+        const totalPendingValue = roundMoney(debtors.reduce((acc, d) => acc + d.balance, 0));
+        const totalPendingUnits = debtors.reduce((acc, d) => acc + Math.round(d.unpaidUnits), 0);
+
+        return {
+          soldTodayUnits,
+          soldTodayValue,
+          receivedTodayValue,
+          fiadoTodayUnits,
+          monthUnits,
+          monthValue,
+          monthReceived,
+          debtors,
+          totalPendingValue,
+          totalPendingUnits,
+          cStats
+        };
+      }
+
+      // Toast notifications
+      function showToast(message, options = {}) {
+        const container = document.getElementById('toastContainer');
+        const el = document.createElement('div');
+        const tone = options.tone || 'dark';
+        const bgClass = tone === 'success' ? 'bg-brand-800 text-white' :
+                        tone === 'amber' ? 'bg-amber-600 text-white' :
+                        tone === 'danger' ? 'bg-rose-600 text-white' : 'bg-slate-900 text-white';
+
+        el.className = `pointer-events-auto animate-slide-up ${bgClass} px-4 py-3 rounded-2xl shadow-lg flex items-center justify-between gap-3 text-sm font-medium`;
+        el.innerHTML = `<span class="leading-snug">${escapeHtml(message)}</span>`;
+
+        if (options.actionLabel && typeof options.onAction === 'function') {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'shrink-0 px-2.5 py-1 rounded-lg bg-white/20 hover:bg-white/30 text-white text-xs font-bold uppercase tracking-wide';
+          btn.textContent = options.actionLabel;
+          btn.addEventListener('click', () => {
+            options.onAction();
+            el.remove();
+          });
+          el.appendChild(btn);
+        }
+
+        container.appendChild(el);
+        setTimeout(() => {
+          el.style.opacity = '0';
+          el.style.transition = 'opacity 0.2s ease';
+          setTimeout(() => el.remove(), 220);
+        }, options.duration || 3200);
+      }
+
+      function copyToClipboard(text, successMsg) {
+        const done = () => showToast(successMsg || 'Copiado!', { tone: 'success' });
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+        } else {
+          fallbackCopy(text, done);
+        }
+      }
+
+      function fallbackCopy(text, cb) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        document.body.removeChild(ta);
+        if (cb) cb();
+      }
+
+      function buildBillingMessage(debtorStat) {
+        const name = debtorStat.customer.name;
+        const units = Math.round(debtorStat.unpaidUnits);
+        const total = fmtBRL(debtorStat.balance);
+        const pix = state.settings.pixKey || '07515446200';
+        const unitLabel = units === 1 ? '1 geladinho' : `${units} geladinhos`;
+        return `Oi ${name}! Passando pra lembrar do Din Din 😊\nVocê tem ${unitLabel} em aberto, total de *${total}*.\n\nChave Pix: ${pix}\nValeu!`;
+      }
+
+      function openWhatsAppForDebtor(debtorStat) {
+        const msg = buildBillingMessage(debtorStat);
+        const phone = cleanPhone(debtorStat.customer.phone);
+        const url = phone
+          ? `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`
+          : `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
+        window.open(url, '_blank', 'noopener,noreferrer');
+      }
+
+      function build16hSummaryText(summary) {
+        if (!summary.debtors.length) {
+          return `Din Din — Fechamento das ${state.settings.alertTime}: Tudo quitado hoje! Nenhum geladinho pendente.`;
+        }
+        const lines = [
+          `🍧 *Din Din — Cobrança das ${state.settings.alertTime}*`,
+          `Faltam pagar: *${summary.totalPendingUnits} geladinho(s)* (${fmtBRL(summary.totalPendingValue)})`,
+          ''
+        ];
+        summary.debtors.forEach((d, i) => {
+          const u = Math.round(d.unpaidUnits);
+          const tag = d.customer.monthly ? ' [Mensalista]' : '';
+          lines.push(`${i + 1}. ${d.customer.name}${tag} — ${u} un. (${fmtBRL(d.balance)})`);
+        });
+        if (state.settings.pixKey) {
+          lines.push('', `Chave Pix: ${state.settings.pixKey}`);
+        }
+        return lines.join('\n');
+      }
+
+      // Actions
+      function addQuickSale(customerId, qty = 1) {
+        const customer = state.customers.find(c => c.id === customerId);
+        if (!customer) return;
+        const price = roundMoney(state.settings.unitPrice);
+        const tx = {
+          id: uid(),
+          type: 'sale_fiado',
+          customerId: customer.id,
+          customerName: customer.name,
+          qty: qty,
+          unitPrice: price,
+          amount: roundMoney(qty * price),
+          flavor: '',
+          timestamp: Date.now()
+        };
+        state.transactions.push(tx);
+        saveState();
+        render();
+        showToast(`+${qty} geladinho para ${customer.name} (${fmtBRL(tx.amount)})`, {
+          tone: 'success',
+          actionLabel: 'Desfazer',
+          onAction: () => {
+            state.transactions = state.transactions.filter(t => t.id !== tx.id);
+            saveState();
+            render();
+            showToast('Lançamento desfeito');
+          }
+        });
+      }
+
+      function recordPayment(customerId, amount, note = '') {
+        const customer = state.customers.find(c => c.id === customerId);
+        if (!customer) return;
+        const cleanAmount = roundMoney(amount);
+        if (cleanAmount <= 0) return;
+        const tx = {
+          id: uid(),
+          type: 'payment',
+          customerId: customer.id,
+          customerName: customer.name,
+          qty: 0,
+          unitPrice: 0,
+          amount: cleanAmount,
+          note: note,
+          timestamp: Date.now()
+        };
+        state.transactions.push(tx);
+        saveState();
+        render();
+        showToast(`Recebido ${fmtBRL(cleanAmount)} de ${customer.name}!`, { tone: 'success' });
+      }
+
+      function deleteTransaction(txId) {
+        state.transactions = state.transactions.filter(t => t.id !== txId);
+        saveState();
+        render();
+        showToast('Registro removido');
+      }
+
+      function loadSampleData() {
+        const now = Date.now();
+        const hour = 3600000;
+        const day = 86400000;
+        const price = state.settings.unitPrice || 3.5;
+
+        const c1 = { id: uid(), name: 'Rafael Silva', phone: '94991234567', monthly: false, createdAt: now - 3 * day };
+        const c2 = { id: uid(), name: 'Camila Costa', phone: '94992345678', monthly: false, createdAt: now - 2 * day };
+        const c3 = { id: uid(), name: 'Bruno Mendes', phone: '94993456789', monthly: true, createdAt: now - 6 * day };
+        const c4 = { id: uid(), name: 'Juliana Rocha', phone: '', monthly: false, createdAt: now - 1 * day };
+
+        state.customers = [c1, c2, c3, c4];
+        state.transactions = [
+          { id: uid(), type: 'sale_fiado', customerId: c3.id, customerName: c3.name, qty: 2, unitPrice: price, amount: roundMoney(2 * price), flavor: 'Ninho c/ Nutella', timestamp: now - 4 * day },
+          { id: uid(), type: 'sale_fiado', customerId: c3.id, customerName: c3.name, qty: 2, unitPrice: price, amount: roundMoney(2 * price), flavor: 'Maracujá', timestamp: now - 2 * day },
+          { id: uid(), type: 'sale_fiado', customerId: c2.id, customerName: c2.name, qty: 1, unitPrice: price, amount: roundMoney(1 * price), flavor: 'Morango', timestamp: now - 1 * day },
+          { id: uid(), type: 'sale_fiado', customerId: c1.id, customerName: c1.name, qty: 2, unitPrice: price, amount: roundMoney(2 * price), flavor: 'Oreo', timestamp: now - 2 * hour },
+          { id: uid(), type: 'sale_fiado', customerId: c2.id, customerName: c2.name, qty: 1, unitPrice: price, amount: roundMoney(1 * price), flavor: 'Coco', timestamp: now - 1 * hour },
+          { id: uid(), type: 'sale_cash', customerId: c4.id, customerName: c4.name, qty: 2, unitPrice: price, amount: roundMoney(2 * price), flavor: 'Chocolate', timestamp: now - 0.5 * hour }
+        ];
+        state.ui.isSampleData = true;
+        saveState();
+        render();
+        showToast('Exemplo carregado! Teste vender, cobrar e quitar.', { tone: 'success' });
+      }
+
+      // 16:00 Alert Engine
+      function updateClockAndAlert() {
+        const now = new Date();
+        const hh = String(now.getHours()).padStart(2, '0');
+        const mm = String(now.getMinutes()).padStart(2, '0');
+        const currentHHMM = `${hh}:${mm}`;
+        const clockEl = document.getElementById('headerClock');
+        if (clockEl) clockEl.textContent = currentHHMM;
+
+        const targetTime = state.settings.alertTime || '16:00';
+        const today = todayISO();
+
+        if (currentHHMM === targetTime && state.settings.lastAlertDate !== today) {
+          state.settings.lastAlertDate = today;
+          saveState();
+          trigger16hAlert(false);
+        }
+      }
+
+      function trigger16hAlert(isManual = false) {
+        const summary = getSummaryMetrics();
+        if (state.settings.notificationsEnabled && 'Notification' in window && Notification.permission === 'granted') {
+          const title = `Din Din — Fechamento das ${state.settings.alertTime}`;
+          const body = summary.debtors.length
+            ? `Faltam ${summary.totalPendingUnits} geladinho(s) (${fmtBRL(summary.totalPendingValue)}) de ${summary.debtors.length} pessoa(s): ${summary.debtors.slice(0, 4).map(d => d.customer.name).join(', ')}.`
+            : 'Tudo pago hoje! Nenhum fiado em aberto.';
+          try {
+            new Notification(title, { body });
+          } catch (e) {}
+        }
+        open16hModal(isManual);
+      }
+
+      function downloadCalendarReminderICS() {
+        const [hh, mm] = (state.settings.alertTime || '16:00').split(':');
+        const now = new Date();
+        const pad = n => String(n).padStart(2, '0');
+        const y = now.getFullYear();
+        const mo = pad(now.getMonth() + 1);
+        const da = pad(now.getDate());
+        const dtStart = `${y}${mo}${da}T${pad(hh)}${pad(mm)}00`;
+        const endH = pad((parseInt(hh, 10) + 0) % 24);
+        const endM = pad(Math.min(59, parseInt(mm, 10) + 10));
+        const dtEnd = `${y}${mo}${da}T${endH}${endM}00`;
+
+        const ics = [
+          'BEGIN:VCALENDAR',
+          'VERSION:2.0',
+          'PRODID:-//Din Din//Lembrete Cobranca//PT-BR',
+          'BEGIN:VEVENT',
+          `UID:dindin-alert-${Date.now()}@dindin.app`,
+          `DTSTART:${dtStart}`,
+          `DTEND:${dtEnd}`,
+          'RRULE:FREQ=DAILY;BYDAY=MO,TU,WE,TH,FR',
+          'SUMMARY:Din Din — Conferir quem falta pagar geladinho',
+          'DESCRIPTION:Abrir o app Din Din para ver quantos geladinhos faltam ser pagos e enviar cobrança no WhatsApp.',
+          'BEGIN:VALARM',
+          'TRIGGER:PT0M',
+          'ACTION:DISPLAY',
+          'DESCRIPTION:Hora de conferir o fiado no Din Din!',
+          'END:VALARM',
+          'END:VEVENT',
+          'END:VCALENDAR'
+        ].join('\r\n');
+
+        downloadFile(ics, 'lembrete-dindin-16h.ics', 'text/calendar;charset=utf-8');
+        showToast('Lembrete diário (.ics) baixado! Abra no celular para salvar.', { tone: 'success' });
+      }
+
+      function downloadFile(content, filename, mime) {
+        const blob = new Blob([content], { type: mime });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+
+      // Modals
+      function closeModal() {
+        const mc = document.getElementById('modalContainer');
+        mc.classList.add('hidden');
+        mc.innerHTML = '';
+      }
+
+      function openModal(html, onBind) {
+        const mc = document.getElementById('modalContainer');
+        mc.innerHTML = html;
+        mc.classList.remove('hidden');
+        mc.onclick = (e) => {
+          if (e.target === mc) closeModal();
+        };
+        if (onBind) onBind(mc);
+      }
+
+      function openNewSaleModal(preselectedCustomerId = '') {
+        let mode = 'fiado'; // 'fiado' | 'cash'
+        let selectedCustomerId = preselectedCustomerId;
+        let qty = 1;
+        let customPrice = state.settings.unitPrice;
+        let selectedFlavor = '';
+
+        const existingCustomers = [...state.customers].sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
+
+        openModal(`
+          <div class="w-full max-w-[460px] bg-white rounded-t-3xl sm:rounded-3xl p-5 max-h-[90vh] overflow-y-auto animate-slide-up shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-lg font-extrabold text-slate-900">Registrar Venda</h2>
+              <button type="button" id="mCloseSale" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
+              </button>
+            </div>
+
+            <!-- Mode Toggle -->
+            <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-2xl mb-4">
+              <button type="button" id="mModeFiado" class="py-2.5 rounded-xl text-sm font-bold bg-white text-amber-700 shadow-sm transition">Fiado (Pagar depois)</button>
+              <button type="button" id="mModeCash" class="py-2.5 rounded-xl text-sm font-semibold text-slate-500 transition">Pago na hora</button>
+            </div>
+
+            <!-- Customer Selection -->
+            <div class="mb-4">
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2" id="mCustomerLabel">Quem comprou?</label>
+              ${existingCustomers.length ? `
+                <div class="flex flex-wrap gap-1.5 mb-2.5 max-h-28 overflow-y-auto no-scrollbar" id="mCustomerChips">
+                  ${existingCustomers.map(c => `
+                    <button type="button" data-cid="${c.id}" class="m-chip px-3 py-1.5 rounded-full text-xs font-semibold border transition ${selectedCustomerId === c.id ? 'bg-brand-700 text-white border-brand-700' : 'bg-slate-50 text-slate-700 border-slate-200 hover:border-brand-400'}">
+                      ${escapeHtml(c.name)}${c.monthly ? ' ★' : ''}
+                    </button>
+                  `).join('')}
+                </div>
+              ` : ''}
+              <input type="text" id="mNewName" placeholder="${existingCustomers.length ? 'Ou digite um nome novo...' : 'Digite o nome do colega...'}" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 focus:outline-none text-sm font-medium" />
+              <div id="mNewCustomerExtras" class="hidden mt-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2.5">
+                <input type="tel" id="mNewPhone" placeholder="WhatsApp (opcional, ex: 94991234567)" class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm focus:border-brand-500 focus:outline-none" />
+                <label class="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer">
+                  <input type="checkbox" id="mNewMonthly" class="w-4 h-4 rounded accent-brand-700" />
+                  <span>Cliente mensalista (acumula para pagar no mês)</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Quantity & Price -->
+            <div class="mb-4">
+              <div class="flex items-center justify-between mb-2">
+                <label class="text-xs font-bold uppercase tracking-wider text-slate-500">Quantidade</label>
+                <span class="text-xs font-semibold text-slate-500">Unitário: <strong class="text-slate-800">${fmtBRL(customPrice)}</strong></span>
+              </div>
+              <div class="flex items-center justify-between gap-3 bg-slate-50 p-2 rounded-2xl border border-slate-200">
+                <button type="button" id="mQtyMinus" class="tap-btn w-11 h-11 rounded-xl bg-white border border-slate-200 text-slate-800 text-xl font-bold flex items-center justify-center shadow-xs">−</button>
+                <div class="text-center">
+                  <div class="text-2xl font-extrabold text-slate-900" id="mQtyDisplay">1</div>
+                  <div class="text-[11px] text-slate-500 font-medium" id="mQtySub">geladinho</div>
+                </div>
+                <button type="button" id="mQtyPlus" class="tap-btn w-11 h-11 rounded-xl bg-brand-700 text-white text-xl font-bold flex items-center justify-center shadow-sm">+</button>
+              </div>
+              <div class="grid grid-cols-4 gap-2 mt-2">
+                ${[1, 2, 3, 5].map(n => `<button type="button" data-q="${n}" class="m-qpreset py-1.5 rounded-xl bg-slate-100 hover:bg-brand-100 hover:text-brand-800 text-xs font-bold text-slate-700 transition">${n} un.</button>`).join('')}
+              </div>
+            </div>
+
+            <!-- Optional Flavor -->
+            <div class="mb-5">
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Sabor (opcional)</label>
+              <div class="flex flex-wrap gap-1.5">
+                ${FLAVORS.map(f => `<button type="button" data-flavor="${escapeHtml(f)}" class="m-flavor px-2.5 py-1 rounded-full text-xs font-medium bg-slate-50 border border-slate-200 text-slate-600 hover:border-brand-400 transition">${escapeHtml(f)}</button>`).join('')}
+              </div>
+            </div>
+
+            <!-- Submit -->
+            <button type="button" id="mSubmitSale" class="tap-btn w-full py-3.5 rounded-2xl bg-brand-700 hover:bg-brand-800 text-white font-bold text-base shadow-md flex items-center justify-center gap-2">
+              <span>Salvar venda</span>
+              <span class="px-2 py-0.5 rounded-lg bg-white/20 text-sm" id="mTotalBadge">${fmtBRL(customPrice)}</span>
+            </button>
+          </div>
+        `, (mc) => {
+          const nameInput = mc.querySelector('#mNewName');
+          const extras = mc.querySelector('#mNewCustomerExtras');
+          const qtyDisp = mc.querySelector('#mQtyDisplay');
+          const qtySub = mc.querySelector('#mQtySub');
+          const totalBadge = mc.querySelector('#mTotalBadge');
+          const btnFiado = mc.querySelector('#mModeFiado');
+          const btnCash = mc.querySelector('#mModeCash');
+          const custLabel = mc.querySelector('#mCustomerLabel');
+
+          function syncUI() {
+            qtyDisp.textContent = String(qty);
+            qtySub.textContent = qty === 1 ? 'geladinho' : 'geladinhos';
+            totalBadge.textContent = fmtBRL(qty * customPrice);
+
+            if (mode === 'fiado') {
+              btnFiado.className = 'py-2.5 rounded-xl text-sm font-bold bg-white text-amber-700 shadow-sm transition';
+              btnCash.className = 'py-2.5 rounded-xl text-sm font-semibold text-slate-500 transition';
+              custLabel.textContent = 'Quem comprou fiado?';
+            } else {
+              btnCash.className = 'py-2.5 rounded-xl text-sm font-bold bg-white text-brand-700 shadow-sm transition';
+              btnFiado.className = 'py-2.5 rounded-xl text-sm font-semibold text-slate-500 transition';
+              custLabel.textContent = 'Cliente (opcional na venda paga na hora)';
+            }
+          }
+
+          mc.querySelector('#mCloseSale').addEventListener('click', closeModal);
+          btnFiado.addEventListener('click', () => { mode = 'fiado'; syncUI(); });
+          btnCash.addEventListener('click', () => { mode = 'cash'; syncUI(); });
+
+          mc.querySelectorAll('.m-chip').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const cid = btn.getAttribute('data-cid');
+              selectedCustomerId = (selectedCustomerId === cid) ? '' : cid;
+              nameInput.value = '';
+              extras.classList.add('hidden');
+              mc.querySelectorAll('.m-chip').forEach(b => {
+                const active = b.getAttribute('data-cid') === selectedCustomerId;
+                b.className = `m-chip px-3 py-1.5 rounded-full text-xs font-semibold border transition ${active ? 'bg-brand-700 text-white border-brand-700' : 'bg-slate-50 text-slate-700 border-slate-200 hover:border-brand-400'}`;
+              });
+            });
+          });
+
+          nameInput.addEventListener('input', () => {
+            const val = nameInput.value.trim();
+            if (val.length > 0) {
+              selectedCustomerId = '';
+              mc.querySelectorAll('.m-chip').forEach(b => {
+                b.className = 'm-chip px-3 py-1.5 rounded-full text-xs font-semibold border transition bg-slate-50 text-slate-700 border-slate-200 hover:border-brand-400';
+              });
+              extras.classList.remove('hidden');
+            } else {
+              extras.classList.add('hidden');
+            }
+          });
+
+          mc.querySelector('#mQtyMinus').addEventListener('click', () => {
+            if (qty > 1) { qty--; syncUI(); }
+          });
+          mc.querySelector('#mQtyPlus').addEventListener('click', () => {
+            if (qty < 99) { qty++; syncUI(); }
+          });
+          mc.querySelectorAll('.m-qpreset').forEach(b => {
+            b.addEventListener('click', () => {
+              qty = parseInt(b.getAttribute('data-q'), 10) || 1;
+              syncUI();
+            });
+          });
+
+          mc.querySelectorAll('.m-flavor').forEach(b => {
+            b.addEventListener('click', () => {
+              const f = b.getAttribute('data-flavor');
+              selectedFlavor = (selectedFlavor === f) ? '' : f;
+              mc.querySelectorAll('.m-flavor').forEach(x => {
+                const active = x.getAttribute('data-flavor') === selectedFlavor;
+                x.className = `m-flavor px-2.5 py-1 rounded-full text-xs font-medium border transition ${active ? 'bg-amber-500 text-white border-amber-500 font-bold' : 'bg-slate-50 border-slate-200 text-slate-600 hover:border-brand-400'}`;
+              });
+            });
+          });
+
+          mc.querySelector('#mSubmitSale').addEventListener('click', () => {
+            let cid = selectedCustomerId;
+            let cname = '';
+            const typedName = nameInput.value.trim();
+
+            if (!cid && typedName) {
+              // Check if exact name already exists
+              const found = state.customers.find(c => c.name.toLowerCase() === typedName.toLowerCase());
+              if (found) {
+                cid = found.id;
+                cname = found.name;
+              } else {
+                const newC = {
+                  id: uid(),
+                  name: typedName,
+                  phone: (mc.querySelector('#mNewPhone').value || '').trim(),
+                  monthly: !!mc.querySelector('#mNewMonthly').checked,
+                  createdAt: Date.now()
+                };
+                state.customers.push(newC);
+                cid = newC.id;
+                cname = newC.name;
+              }
+            } else if (cid) {
+              const found = state.customers.find(c => c.id === cid);
+              cname = found ? found.name : 'Cliente';
+            }
+
+            if (mode === 'fiado' && !cid) {
+              nameInput.focus();
+              nameInput.classList.add('border-rose-500', 'ring-2', 'ring-rose-200');
+              showToast('Escolha ou digite o nome de quem comprou fiado', { tone: 'amber' });
+              return;
+            }
+
+            const total = roundMoney(qty * customPrice);
+            state.transactions.push({
+              id: uid(),
+              type: mode === 'fiado' ? 'sale_fiado' : 'sale_cash',
+              customerId: cid || null,
+              customerName: cname || 'Venda Avulsa',
+              qty: qty,
+              unitPrice: customPrice,
+              amount: total,
+              flavor: selectedFlavor,
+              timestamp: Date.now()
+            });
+
+            saveState();
+            closeModal();
+            render();
+            showToast(
+              mode === 'fiado'
+                ? `Fiado anotado: ${qty} un. para ${cname} (${fmtBRL(total)})`
+                : `Venda paga na hora: ${qty} un. (${fmtBRL(total)})`,
+              { tone: 'success' }
+            );
+          });
+
+          syncUI();
+        });
+      }
+
+      function openPaymentModal(customerId) {
+        const summary = getSummaryMetrics();
+        const st = summary.cStats[customerId];
+        if (!st || st.balance <= 0.005) return;
+
+        const maxVal = st.balance;
+        const unitPrice = state.settings.unitPrice || 3.5;
+
+        openModal(`
+          <div class="w-full max-w-[460px] bg-white rounded-t-3xl sm:rounded-3xl p-5 animate-slide-up shadow-2xl">
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <h2 class="text-lg font-extrabold text-slate-900">Receber Pagamento</h2>
+                <p class="text-xs text-slate-500 font-medium">${escapeHtml(st.customer.name)} • Deve ${fmtBRL(maxVal)} (${Math.round(st.unpaidUnits)} un.)</p>
+              </div>
+              <button type="button" id="mClosePay" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
+              </button>
+            </div>
+
+            <button type="button" id="mPayFull" class="tap-btn w-full py-3.5 px-4 rounded-2xl bg-brand-700 hover:bg-brand-800 text-white font-bold text-sm shadow-md flex items-center justify-between mb-4">
+              <span>Quitar tudo agora</span>
+              <span class="px-2.5 py-1 rounded-xl bg-white/20 font-extrabold">${fmtBRL(maxVal)}</span>
+            </button>
+
+            <div class="border-t border-slate-100 pt-4">
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Ou pagamento parcial (R$)</label>
+              <div class="flex gap-2">
+                <input type="number" step="0.50" min="0.50" max="${maxVal}" id="mPayPartialInput" placeholder="Ex: ${unitPrice.toFixed(2)}" class="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 focus:outline-none text-base font-bold" />
+                <button type="button" id="mPayPartialBtn" class="tap-btn px-4 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-bold">Abater</button>
+              </div>
+              <div class="flex flex-wrap gap-1.5 mt-2.5">
+                ${[1, 2, 3].map(n => {
+                  const val = roundMoney(n * unitPrice);
+                  if (val >= maxVal) return '';
+                  return `<button type="button" data-pval="${val}" class="m-pval px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-brand-100 text-slate-700 text-xs font-semibold">${n} un. (${fmtBRL(val)})</button>`;
+                }).join('')}
+              </div>
+            </div>
+          </div>
+        `, (mc) => {
+          mc.querySelector('#mClosePay').addEventListener('click', closeModal);
+          mc.querySelector('#mPayFull').addEventListener('click', () => {
+            closeModal();
+            recordPayment(customerId, maxVal, 'Quitação total');
+          });
+          mc.querySelectorAll('.m-pval').forEach(b => {
+            b.addEventListener('click', () => {
+              mc.querySelector('#mPayPartialInput').value = b.getAttribute('data-pval');
+            });
+          });
+          mc.querySelector('#mPayPartialBtn').addEventListener('click', () => {
+            const raw = parseFloat(String(mc.querySelector('#mPayPartialInput').value).replace(',', '.'));
+            if (!raw || raw <= 0) {
+              showToast('Informe um valor válido', { tone: 'amber' });
+              return;
+            }
+            const pay = Math.min(maxVal, roundMoney(raw));
+            closeModal();
+            recordPayment(customerId, pay, pay >= maxVal ? 'Quitação total' : 'Pagamento parcial');
+          });
+        });
+      }
+
+      function openEditCustomerModal(customerId) {
+        const customer = state.customers.find(c => c.id === customerId);
+        if (!customer) return;
+
+        openModal(`
+          <div class="w-full max-w-[460px] bg-white rounded-t-3xl sm:rounded-3xl p-5 animate-slide-up shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-lg font-extrabold text-slate-900">Editar Cliente</h2>
+              <button type="button" id="mCloseEditC" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <div class="space-y-3 mb-5">
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Nome</label>
+                <input type="text" id="ecName" value="${escapeHtml(customer.name)}" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 focus:outline-none text-sm font-semibold" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">WhatsApp (com DDD)</label>
+                <input type="tel" id="ecPhone" value="${escapeHtml(customer.phone || '')}" placeholder="Ex: 94991234567" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 focus:outline-none text-sm font-medium" />
+              </div>
+              <label class="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer">
+                <input type="checkbox" id="ecMonthly" ${customer.monthly ? 'checked' : ''} class="w-4 h-4 accent-brand-700" />
+                <div>
+                  <div class="text-sm font-semibold text-slate-800">Cliente Mensalista</div>
+                  <div class="text-xs text-slate-500">Marca com estrela para facilitar fechamento mensal</div>
+                </div>
+              </label>
+            </div>
+            <button type="button" id="ecSave" class="tap-btn w-full py-3 rounded-2xl bg-brand-700 text-white font-bold text-sm">Salvar alterações</button>
+          </div>
+        `, (mc) => {
+          mc.querySelector('#mCloseEditC').addEventListener('click', closeModal);
+          mc.querySelector('#ecSave').addEventListener('click', () => {
+            const name = mc.querySelector('#ecName').value.trim();
+            if (!name) { showToast('O nome não pode ficar vazio', { tone: 'amber' }); return; }
+            customer.name = name;
+            customer.phone = mc.querySelector('#ecPhone').value.trim();
+            customer.monthly = !!mc.querySelector('#ecMonthly').checked;
+            state.transactions.forEach(t => { if (t.customerId === customer.id) t.customerName = name; });
+            saveState();
+            closeModal();
+            render();
+            showToast('Cliente atualizado!', { tone: 'success' });
+          });
+        });
+      }
+
+      function open16hModal(isManual = false) {
+        const summary = getSummaryMetrics();
+        const alertTime = state.settings.alertTime || '16:00';
+
+        openModal(`
+          <div class="w-full max-w-[460px] bg-white rounded-t-3xl sm:rounded-3xl p-5 max-h-[88vh] overflow-y-auto animate-slide-up shadow-2xl">
+            <div class="flex items-start justify-between gap-3 mb-4">
+              <div class="flex items-center gap-2.5">
+                <div class="w-10 h-10 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"/></svg>
+                </div>
+                <div>
+                  <h2 class="text-lg font-extrabold text-slate-900">Fechamento das ${escapeHtml(alertTime)}</h2>
+                  <p class="text-xs text-slate-500">${isManual ? 'Prévia de cobrança do dia' : 'Hora de cobrar os geladinhos em aberto!'}</p>
+                </div>
+              </div>
+              <button type="button" id="mClose16h" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
+              </button>
+            </div>
+
+            ${summary.debtors.length === 0 ? `
+              <div class="p-6 text-center rounded-2xl bg-brand-50 border border-brand-100 mb-4">
+                <div class="text-3xl mb-2">🎉</div>
+                <div class="font-bold text-brand-900">Tudo quitado!</div>
+                <p class="text-xs text-brand-700 mt-1">Nenhum geladinho em aberto no momento.</p>
+              </div>
+            ` : `
+              <div class="grid grid-cols-2 gap-2.5 mb-4">
+                <div class="p-3.5 rounded-2xl bg-amber-50 border border-amber-200/80">
+                  <div class="text-[11px] font-bold uppercase text-amber-700">Faltam pagar</div>
+                  <div class="text-2xl font-extrabold text-amber-900 mt-0.5">${summary.totalPendingUnits} <span class="text-xs font-semibold">un.</span></div>
+                </div>
+                <div class="p-3.5 rounded-2xl bg-rose-50 border border-rose-200/80">
+                  <div class="text-[11px] font-bold uppercase text-rose-700">Total em aberto</div>
+                  <div class="text-2xl font-extrabold text-rose-900 mt-0.5">${fmtBRL(summary.totalPendingValue)}</div>
+                </div>
+              </div>
+
+              <div class="space-y-2 mb-4 max-h-60 overflow-y-auto pr-0.5">
+                ${summary.debtors.map(d => {
+                  const days = daysSince(d.oldestUnpaidTs);
+                  return `
+                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-2">
+                      <div class="min-w-0">
+                        <div class="font-bold text-sm text-slate-900 truncate flex items-center gap-1.5">
+                          <span>${escapeHtml(d.customer.name)}</span>
+                          ${d.customer.monthly ? '<span class="text-[10px] px-1.5 py-0.5 rounded-md bg-indigo-100 text-indigo-700 font-bold">Mensal</span>' : ''}
+                        </div>
+                        <div class="text-xs text-slate-500">${Math.round(d.unpaidUnits)} un. • <strong class="text-slate-800">${fmtBRL(d.balance)}</strong>${days > 0 ? ` • há ${days}d` : ''}</div>
+                      </div>
+                      <div class="flex items-center gap-1.5 shrink-0">
+                        <button type="button" data-wa="${d.customer.id}" class="m16-wa tap-btn px-2.5 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-bold">WhatsApp</button>
+                        <button type="button" data-pay="${d.customer.id}" class="m16-pay tap-btn px-2.5 py-1.5 rounded-xl bg-brand-700 text-white text-xs font-bold">Quitar</button>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+
+              <div class="grid grid-cols-2 gap-2">
+                <button type="button" id="m16CopyAll" class="tap-btn py-3 rounded-2xl bg-slate-900 text-white text-xs font-bold">Copiar lista completa</button>
+                <button type="button" id="m16Calendar" class="tap-btn py-3 rounded-2xl bg-amber-100 text-amber-900 text-xs font-bold">Lembrete no celular (.ics)</button>
+              </div>
+            `}
+          </div>
+        `, (mc) => {
+          mc.querySelector('#mClose16h').addEventListener('click', closeModal);
+          mc.querySelectorAll('.m16-wa').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const cid = btn.getAttribute('data-wa');
+              const st = summary.cStats[cid];
+              if (st) openWhatsAppForDebtor(st);
+            });
+          });
+          mc.querySelectorAll('.m16-pay').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const cid = btn.getAttribute('data-pay');
+              const st = summary.cStats[cid];
+              if (st) {
+                recordPayment(cid, st.balance, 'Quitação no fechamento');
+                closeModal();
+                open16hModal(isManual);
+              }
+            });
+          });
+          const copyBtn = mc.querySelector('#m16CopyAll');
+          if (copyBtn) {
+            copyBtn.addEventListener('click', () => {
+              copyToClipboard(build16hSummaryText(summary), 'Resumo das 16h copiado!');
+            });
+          }
+          const calBtn = mc.querySelector('#m16Calendar');
+          if (calBtn) {
+            calBtn.addEventListener('click', downloadCalendarReminderICS);
+          }
+        });
+      }
+
+      function openConfirmModal(title, message, confirmLabel, onConfirm) {
+        openModal(`
+          <div class="w-full max-w-[380px] bg-white rounded-t-3xl sm:rounded-3xl p-5 animate-slide-up shadow-2xl">
+            <h3 class="text-base font-extrabold text-slate-900 mb-1.5">${escapeHtml(title)}</h3>
+            <p class="text-sm text-slate-600 mb-5">${escapeHtml(message)}</p>
+            <div class="grid grid-cols-2 gap-2.5">
+              <button type="button" id="cfmCancel" class="tap-btn py-2.5 rounded-xl bg-slate-100 text-slate-700 font-bold text-sm">Cancelar</button>
+              <button type="button" id="cfmOk" class="tap-btn py-2.5 rounded-xl bg-rose-600 text-white font-bold text-sm">${escapeHtml(confirmLabel)}</button>
+            </div>
+          </div>
+        `, (mc) => {
+          mc.querySelector('#cfmCancel').addEventListener('click', closeModal);
+          mc.querySelector('#cfmOk').addEventListener('click', () => {
+            closeModal();
+            onConfirm();
+          });
+        });
+      }
+
+      // Render Views
+      function renderDebtorCard(d) {
+        const units = Math.round(d.unpaidUnits);
+        const days = daysSince(d.oldestUnpaidTs);
+        const isOverdue = days >= 1 && !d.customer.monthly;
+
+        return `
+          <div class="bg-white rounded-2xl p-3.5 border ${isOverdue ? 'border-rose-200' : 'border-slate-200/80'} shadow-xs">
+            <div class="flex items-start justify-between gap-2 mb-3">
+              <div class="min-w-0">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <button type="button" data-edit-c="${d.customer.id}" class="btn-edit-c font-bold text-slate-900 text-sm hover:text-brand-700 text-left truncate">${escapeHtml(d.customer.name)}</button>
+                  ${d.customer.monthly ? '<span class="px-1.5 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-100 text-[10px] font-bold">Mensalista</span>' : ''}
+                  ${days >= 1 ? `<span class="px-1.5 py-0.5 rounded-md ${d.customer.monthly ? 'bg-slate-100 text-slate-600' : 'bg-rose-50 text-rose-700'} text-[10px] font-bold">há ${days}d</span>` : '<span class="px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-700 text-[10px] font-bold">Hoje</span>'}
+                </div>
+                <div class="text-xs text-slate-500 mt-0.5">
+                  ${units} ${units === 1 ? 'geladinho' : 'geladinhos'} em aberto
+                </div>
+              </div>
+              <div class="text-right shrink-0">
+                <div class="text-base font-extrabold text-slate-900">${fmtBRL(d.balance)}</div>
+              </div>
+            </div>
+            <div class="grid grid-cols-12 gap-1.5">
+              <button type="button" data-plus1="${d.customer.id}" class="btn-plus1 tap-btn col-span-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-extrabold">+1 un.</button>
+              <button type="button" data-pay="${d.customer.id}" class="btn-pay tap-btn col-span-4 py-2 rounded-xl bg-brand-700 hover:bg-brand-800 text-white text-xs font-bold">Receber</button>
+              <button type="button" data-wa="${d.customer.id}" class="btn-wa tap-btn col-span-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold">Cobrar</button>
+              <button type="button" data-copy-bill="${d.customer.id}" class="btn-copy-bill tap-btn col-span-2 py-2 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-600 flex items-center justify-center" title="Copiar mensagem de cobrança">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75"/></svg>
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      function renderHojeView(summary) {
+        const isClean = state.customers.length === 0 && state.transactions.length === 0;
+        const alertTime = state.settings.alertTime || '16:00';
+
+        return `
+          ${state.ui.isSampleData ? `
+            <div class="p-3 rounded-2xl bg-indigo-50 border border-indigo-200 flex items-center justify-between gap-2">
+              <div class="text-xs text-indigo-900 font-medium">Modo demonstração ativo com dados de exemplo.</div>
+              <button type="button" id="btnClearSample" class="shrink-0 px-2.5 py-1 rounded-lg bg-indigo-600 text-white text-[11px] font-bold">Zerar</button>
+            </div>
+          ` : ''}
+
+          <!-- Hero KPI Card -->
+          <section class="rounded-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 text-white p-5 shadow-md">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-semibold uppercase tracking-wider text-brand-200">Resumo de Hoje</span>
+              <button type="button" id="btnCopyPixQuick" class="tap-btn px-2.5 py-1 rounded-full bg-white/15 hover:bg-white/25 text-[11px] font-semibold flex items-center gap-1">
+                <span>Pix: ${escapeHtml(state.settings.pixKey || 'Definir')}</span>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75"/></svg>
+              </button>
+            </div>
+            <div class="flex items-baseline justify-between gap-2 mb-4">
+              <div>
+                <div class="text-3xl font-extrabold tracking-tight">${summary.soldTodayUnits} <span class="text-base font-semibold text-brand-200">${summary.soldTodayUnits === 1 ? 'geladinho' : 'geladinhos'}</span></div>
+                <div class="text-xs text-brand-100/80 mt-0.5">Total vendido hoje: ${fmtBRL(summary.soldTodayValue)}</div>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2.5">
+              <div class="rounded-2xl bg-white/10 backdrop-blur-xs p-3">
+                <div class="text-[11px] text-brand-200 font-medium">Recebido hoje</div>
+                <div class="text-lg font-extrabold mt-0.5">${fmtBRL(summary.receivedTodayValue)}</div>
+              </div>
+              <div class="rounded-2xl bg-amber-400/20 border border-amber-300/30 p-3">
+                <div class="text-[11px] text-amber-200 font-medium">Falta receber (total)</div>
+                <div class="text-lg font-extrabold text-amber-300 mt-0.5">${fmtBRL(summary.totalPendingValue)}</div>
+                <div class="text-[10px] text-amber-100/90">${summary.totalPendingUnits} un. • ${summary.debtors.length} ${summary.debtors.length === 1 ? 'pessoa' : 'pessoas'}</div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 16h Alert Card -->
+          <section class="bg-amber-50/90 border border-amber-200/90 rounded-2xl p-3.5 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-700 flex items-center justify-center shrink-0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+              </div>
+              <div class="min-w-0">
+                <div class="text-xs font-extrabold text-amber-950">Alerta diário das ${escapeHtml(alertTime)}</div>
+                <div class="text-[11px] text-amber-800 truncate">
+                  ${summary.debtors.length ? `${summary.totalPendingUnits} un. pendentes de ${summary.debtors.length} pessoa(s)` : 'Nenhum pagamento pendente agora'}
+                </div>
+              </div>
+            </div>
+            <button type="button" id="btnOpen16hCard" class="tap-btn shrink-0 px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-xs">Ver lista</button>
+          </section>
+
+          ${isClean ? `
+            <!-- Clean Onboarding Empty State -->
+            <section class="bg-white rounded-3xl border border-slate-200/80 p-6 text-center space-y-3">
+              <div class="w-14 h-14 rounded-2xl bg-brand-50 text-brand-700 mx-auto flex items-center justify-center text-2xl">🍧</div>
+              <div>
+                <h2 class="text-base font-extrabold text-slate-900">Pronto para começar as vendas!</h2>
+                <p class="text-xs text-slate-500 mt-1 leading-relaxed">Preço padrão em <strong>${fmtBRL(state.settings.unitPrice)}</strong> e Pix <strong>${escapeHtml(state.settings.pixKey)}</strong> já configurados.</p>
+              </div>
+              <div class="pt-1 flex flex-col gap-2">
+                <button type="button" id="btnEmptyFirstSale" class="tap-btn w-full py-3 rounded-2xl bg-brand-700 text-white font-bold text-sm">Registrar primeira venda</button>
+                <button type="button" id="btnLoadSample" class="tap-btn w-full py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs">Carregar dados de exemplo para testar</button>
+              </div>
+            </section>
+          ` : `
+            <!-- Pending Debtors Section -->
+            <section class="space-y-2.5">
+              <div class="flex items-center justify-between px-0.5">
+                <h2 class="text-sm font-extrabold text-slate-800">Quem falta pagar (${summary.debtors.length})</h2>
+                ${summary.debtors.length > 0 ? `<button type="button" id="btnGoFiado" class="text-xs font-bold text-brand-700">Ver todos</button>` : ''}
+              </div>
+              ${summary.debtors.length === 0 ? `
+                <div class="bg-white rounded-2xl border border-slate-200/80 p-5 text-center">
+                  <div class="text-sm font-bold text-slate-800">Nenhum fiado em aberto!</div>
+                  <p class="text-xs text-slate-500 mt-0.5">Todas as vendas até agora foram quitadas.</p>
+                </div>
+              ` : summary.debtors.slice(0, 6).map(renderDebtorCard).join('')}
+            </section>
+          `}
+        `;
+      }
+
+      function renderFiadoView(summary) {
+        const search = (state.ui.fiadoSearch || '').toLowerCase();
+        const filter = state.ui.fiadoFilter || 'todos';
+
+        let list = summary.debtors;
+        if (filter === 'hoje') {
+          list = list.filter(d => d.todayDebt > 0);
+        } else if (filter === 'acumulado') {
+          list = list.filter(d => daysSince(d.oldestUnpaidTs) >= 1);
+        } else if (filter === 'mensalista') {
+          list = list.filter(d => d.customer.monthly);
+        }
+
+        if (search) {
+          list = list.filter(d => d.customer.name.toLowerCase().includes(search));
+        }
+
+        const paidCustomers = Object.values(summary.cStats)
+          .filter(s => s.balance <= 0.005 && (!search || s.customer.name.toLowerCase().includes(search)))
+          .sort((a, b) => a.customer.name.localeCompare(b.customer.name, 'pt-BR'));
+
+        return `
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-lg font-extrabold text-slate-900">Caderneta de Fiado</h2>
+              <p class="text-xs text-slate-500">Acumula automaticamente até quitar (diário ou mensal)</p>
+            </div>
+            <div class="text-right">
+              <div class="text-sm font-extrabold text-amber-700">${fmtBRL(summary.totalPendingValue)}</div>
+              <div class="text-[11px] text-slate-500">${summary.totalPendingUnits} un.</div>
+            </div>
+          </div>
+
+          <!-- Search -->
+          <div class="relative">
+            <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
+            <input type="text" id="fiadoSearchInput" value="${escapeHtml(state.ui.fiadoSearch)}" placeholder="Buscar colega pelo nome..." class="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white border border-slate-200 text-sm focus:border-brand-500 focus:outline-none" />
+          </div>
+
+          <!-- Filter Chips -->
+          <div class="flex gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
+            ${[
+              ['todos', 'Todos (' + summary.debtors.length + ')'],
+              ['hoje', 'De hoje'],
+              ['acumulado', 'Acumulado (+1d)'],
+              ['mensalista', 'Mensalistas']
+            ].map(([key, label]) => `
+              <button type="button" data-ffilter="${key}" class="fiado-filter shrink-0 px-3 py-1.5 rounded-full text-xs font-bold border transition ${filter === key ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-200'}">${label}</button>
+            `).join('')}
+          </div>
+
+          <!-- Debtors List -->
+          <div class="space-y-2.5">
+            ${list.length === 0 ? `
+              <div class="bg-white rounded-2xl border border-slate-200/80 p-6 text-center">
+                <div class="text-sm font-bold text-slate-700">Ninguém pendente neste filtro</div>
+                <p class="text-xs text-slate-500 mt-1">Toque em <strong>+ Vender</strong> para anotar um novo geladinho.</p>
+              </div>
+            ` : list.map(renderDebtorCard).join('')}
+          </div>
+
+          ${paidCustomers.length > 0 ? `
+            <section class="pt-2 space-y-2">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 px-1">Clientes quitados (${paidCustomers.length})</h3>
+              <div class="bg-white rounded-2xl border border-slate-200/80 divide-y divide-slate-100">
+                ${paidCustomers.map(s => `
+                  <div class="p-3 flex items-center justify-between gap-2">
+                    <div class="min-w-0">
+                      <button type="button" data-edit-c="${s.customer.id}" class="btn-edit-c text-sm font-semibold text-slate-800 hover:text-brand-700 truncate">${escapeHtml(s.customer.name)}${s.customer.monthly ? ' ★' : ''}</button>
+                      <div class="text-[11px] text-emerald-600 font-medium">Tudo pago • ${s.totalBoughtUnits} un. no total</div>
+                    </div>
+                    <button type="button" data-plus1="${s.customer.id}" class="btn-plus1 tap-btn px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-brand-100 hover:text-brand-800 text-xs font-bold text-slate-700">+1 fiado</button>
+                  </div>
+                `).join('')}
+              </div>
+            </section>
+          ` : ''}
+        `;
+      }
+
+      function renderHistoricoView(summary) {
+        const filter = state.ui.histFilter || 'hoje';
+        const today = todayISO();
+        const now = new Date();
+        const weekAgo = now.getTime() - 7 * 86400000;
+        const monthPrefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+        const filtered = [...state.transactions]
+          .filter(tx => {
+            const iso = dateISOFromTimestamp(tx.timestamp);
+            if (filter === 'hoje') return iso === today;
+            if (filter === 'semana') return tx.timestamp >= weekAgo;
+            if (filter === 'mes') return iso.startsWith(monthPrefix);
+            return true;
+          })
+          .sort((a, b) => b.timestamp - a.timestamp);
+
+        const totalSoldUnits = filtered.filter(t => t.type !== 'payment').reduce((a, t) => a + t.qty, 0);
+        const totalReceived = roundMoney(filtered.filter(t => t.type === 'payment' || t.type === 'sale_cash').reduce((a, t) => a + t.amount, 0));
+
+        return `
+          <div>
+            <h2 class="text-lg font-extrabold text-slate-900">Histórico & Mês</h2>
+            <p class="text-xs text-slate-500">Acompanhe vendas, recebimentos e fechamento mensal</p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5">
+            <div class="bg-white rounded-2xl p-3.5 border border-slate-200/80">
+              <div class="text-[11px] font-bold uppercase text-slate-400">Vendidos no mês</div>
+              <div class="text-xl font-extrabold text-slate-900 mt-0.5">${summary.monthUnits} <span class="text-xs font-semibold text-slate-500">un.</span></div>
+              <div class="text-xs text-slate-500">${fmtBRL(summary.monthValue)}</div>
+            </div>
+            <div class="bg-white rounded-2xl p-3.5 border border-slate-200/80">
+              <div class="text-[11px] font-bold uppercase text-slate-400">Recebido no mês</div>
+              <div class="text-xl font-extrabold text-brand-700 mt-0.5">${fmtBRL(summary.monthReceived)}</div>
+              <div class="text-xs text-slate-500">Em caixa / Pix</div>
+            </div>
+          </div>
+
+          <div class="flex gap-1.5 overflow-x-auto no-scrollbar">
+            ${[['hoje', 'Hoje'], ['semana', '7 dias'], ['mes', 'Este mês'], ['tudo', 'Tudo']].map(([k, lbl]) => `
+              <button type="button" data-hfilter="${k}" class="hist-filter shrink-0 px-3.5 py-1.5 rounded-full text-xs font-bold border transition ${filter === k ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-200'}">${lbl}</button>
+            `).join('')}
+          </div>
+
+          <div class="flex items-center justify-between text-xs text-slate-500 px-1">
+            <span>${filtered.length} registro(s) • ${totalSoldUnits} un. vendidas</span>
+            <span class="font-bold text-brand-700">Recebido: ${fmtBRL(totalReceived)}</span>
+          </div>
+
+          <div class="space-y-2">
+            ${filtered.length === 0 ? `
+              <div class="bg-white rounded-2xl border border-slate-200/80 p-6 text-center text-xs text-slate-500">
+                Nenhuma movimentação neste período.
+              </div>
+            ` : filtered.map(tx => {
+              const isPay = tx.type === 'payment';
+              const isCash = tx.type === 'sale_cash';
+              const badgeColor = isPay ? 'bg-emerald-50 text-emerald-700' : isCash ? 'bg-brand-50 text-brand-700' : 'bg-amber-50 text-amber-700';
+              const label = isPay ? 'Pagamento' : isCash ? 'Pago na hora' : 'Fiado';
+              const sign = isPay || isCash ? '+' : '';
+              return `
+                <div class="bg-white rounded-2xl p-3 border border-slate-200/80 flex items-center justify-between gap-2">
+                  <div class="min-w-0">
+                    <div class="flex items-center gap-1.5">
+                      <span class="px-1.5 py-0.5 rounded-md ${badgeColor} text-[10px] font-bold">${label}</span>
+                      <span class="text-sm font-bold text-slate-900 truncate">${escapeHtml(tx.customerName || 'Avulso')}</span>
+                    </div>
+                    <div class="text-[11px] text-slate-500 mt-0.5">
+                      ${isPay ? (escapeHtml(tx.note || 'Abatimento de fiado')) : `${tx.qty} un. × ${fmtBRL(tx.unitPrice)}${tx.flavor ? ' • ' + escapeHtml(tx.flavor) : ''}`}
+                      • ${fmtShortDate(tx.timestamp)}
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2 shrink-0">
+                    <span class="text-sm font-extrabold ${isPay || isCash ? 'text-emerald-700' : 'text-slate-900'}">${sign}${fmtBRL(tx.amount)}</span>
+                    <button type="button" data-del-tx="${tx.id}" class="btn-del-tx w-7 h-7 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-600 flex items-center justify-center" title="Excluir registro">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg>
+                    </button>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+      }
+
+      function renderAjustesView() {
+        const notifStatus = ('Notification' in window) ? Notification.permission : 'unsupported';
+        return `
+          <div>
+            <h2 class="text-lg font-extrabold text-slate-900">Ajustes do Din Din</h2>
+            <p class="text-xs text-slate-500">Preço do geladinho, chave Pix, alerta das 16h e backup</p>
+          </div>
+
+          <!-- Preço e Pix -->
+          <section class="bg-white rounded-3xl border border-slate-200/80 p-4 space-y-4">
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Preço do Geladinho (R$)</label>
+              <div class="flex gap-2">
+                <input type="number" step="0.25" min="0.50" id="setPrice" value="${state.settings.unitPrice.toFixed(2)}" class="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 focus:outline-none text-base font-extrabold" />
+                <button type="button" id="btnSavePrice" class="tap-btn px-4 py-2.5 rounded-xl bg-brand-700 text-white text-sm font-bold">Salvar</button>
+              </div>
+              <p class="text-[11px] text-slate-400 mt-1">Vendas antigas mantêm o preço da época; novas vendas usam o novo valor.</p>
+            </div>
+
+            <div class="border-t border-slate-100 pt-4">
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Chave Pix para Cobrança</label>
+              <div class="flex gap-2">
+                <input type="text" id="setPix" value="${escapeHtml(state.settings.pixKey)}" placeholder="CPF, telefone, e-mail ou aleatória" class="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 focus:outline-none text-sm font-semibold" />
+                <button type="button" id="btnSavePix" class="tap-btn px-4 py-2.5 rounded-xl bg-brand-700 text-white text-sm font-bold">Salvar</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Alerta 16h -->
+          <section class="bg-white rounded-3xl border border-slate-200/80 p-4 space-y-3.5">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-sm font-extrabold text-slate-900">Notificação Diária</div>
+                <div class="text-xs text-slate-500">Mostra quantos faltam pagar e quem deve</div>
+              </div>
+              <input type="time" id="setAlertTime" value="${escapeHtml(state.settings.alertTime || '16:00')}" class="px-2.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-extrabold text-slate-900" />
+            </div>
+
+            <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-200/70">
+              <div class="pr-2">
+                <div class="text-xs font-bold text-slate-800">Notificação do navegador</div>
+                <div class="text-[11px] text-slate-500">${notifStatus === 'granted' ? 'Autorizada neste aparelho' : notifStatus === 'denied' ? 'Bloqueada nas configurações do navegador' : 'Ative para receber alerta na tela'}</div>
+              </div>
+              <button type="button" id="btnToggleNotif" class="tap-btn shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold ${state.settings.notificationsEnabled && notifStatus === 'granted' ? 'bg-brand-700 text-white' : 'bg-slate-200 text-slate-700'}">
+                ${state.settings.notificationsEnabled && notifStatus === 'granted' ? 'Ativo' : 'Ativar'}
+              </button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" id="btnTest16h" class="tap-btn py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold">Testar Alerta 16h</button>
+              <button type="button" id="btnDownloadICS" class="tap-btn py-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold">Alarme celular (.ics)</button>
+            </div>
+          </section>
+
+          <!-- Instalar no Celular (PWA) -->
+          <section class="bg-white rounded-3xl border border-slate-200/80 p-4 space-y-3">
+            <div class="flex items-center gap-3">
+              <img src="icons/icon-192.png" alt="Ícone Din Din" class="w-11 h-11 rounded-2xl object-cover shadow-xs ring-1 ring-brand-700/15 shrink-0" />
+              <div class="min-w-0">
+                <div class="text-sm font-extrabold text-slate-900">Instalar no Celular</div>
+                <div class="text-xs text-slate-500" id="pwaStatusText">${isStandaloneApp() ? 'App já instalado neste aparelho ✓' : 'Use como aplicativo nativo no Android ou iPhone'}</div>
+              </div>
+            </div>
+            ${isStandaloneApp() ? `
+              <div class="px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold text-center">Din Din rodando em modo aplicativo</div>
+            ` : `
+              <button type="button" id="btnInstallApp" class="tap-btn w-full py-2.5 rounded-xl bg-brand-700 hover:bg-brand-800 text-white text-xs font-bold shadow-xs">
+                ${deferredInstallPrompt ? 'Instalar Din Din agora' : 'Como instalar no Android / iPhone'}
+              </button>
+            `}
+          </section>
+
+          <!-- Backup & Dados -->
+          <section class="bg-white rounded-3xl border border-slate-200/80 p-4 space-y-2.5">
+            <div class="text-sm font-extrabold text-slate-900 mb-1">Backup & Exportação</div>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" id="btnExportJson" class="tap-btn py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold">Salvar Backup (.json)</button>
+              <button type="button" id="btnImportJson" class="tap-btn py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold">Restaurar Backup</button>
+            </div>
+            <button type="button" id="btnExportCsv" class="tap-btn w-full py-2.5 rounded-xl bg-brand-50 text-brand-800 border border-brand-200 text-xs font-bold">Exportar planilha de vendas (.csv)</button>
+            <button type="button" id="btnResetAll" class="tap-btn w-full py-2.5 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 text-xs font-bold mt-2">Apagar todos os dados</button>
+          </section>
+        `;
+      }
+
+      function render() {
+        const summary = getSummaryMetrics();
+
+        // Update header
+        const sub = document.getElementById('headerSubtitle');
+        const clockText = document.getElementById('headerClock') ? document.getElementById('headerClock').textContent : '--:--';
+        sub.innerHTML = `<span>Geladinho ${fmtBRL(state.settings.unitPrice)}</span><span class="text-slate-300">•</span><span id="headerClock">${clockText}</span>`;
+        document.getElementById('headerAlertTime').textContent = (state.settings.alertTime || '16:00').replace(':00', 'h');
+
+        const pendingBadge = document.getElementById('headerPendingBadge');
+        const navDebtBadge = document.getElementById('navDebtBadge');
+        if (summary.debtors.length > 0) {
+          pendingBadge.textContent = String(summary.debtors.length);
+          pendingBadge.classList.remove('hidden');
+          navDebtBadge.textContent = String(summary.debtors.length);
+          navDebtBadge.classList.remove('hidden');
+        } else {
+          pendingBadge.classList.add('hidden');
+          navDebtBadge.classList.add('hidden');
+        }
+
+        // Update nav active states
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+          const isActive = btn.getAttribute('data-tab') === state.ui.tab;
+          btn.classList.toggle('text-brand-700', isActive);
+          btn.classList.toggle('font-semibold', isActive);
+          btn.classList.toggle('text-slate-400', !isActive);
+          btn.classList.toggle('font-medium', !isActive);
+        });
+
+        // Show/hide FAB
+        const fab = document.getElementById('fabNewSale');
+        if (state.ui.tab === 'hoje' || state.ui.tab === 'fiado') {
+          fab.classList.remove('hidden');
+        } else {
+          fab.classList.add('hidden');
+        }
+
+        // Render main content
+        const main = document.getElementById('mainContent');
+        if (state.ui.tab === 'hoje') {
+          main.innerHTML = renderHojeView(summary);
+        } else if (state.ui.tab === 'fiado') {
+          main.innerHTML = renderFiadoView(summary);
+        } else if (state.ui.tab === 'historico') {
+          main.innerHTML = renderHistoricoView(summary);
+        } else {
+          main.innerHTML = renderAjustesView();
+        }
+
+        bindDynamicEvents(summary);
+      }
+
+      function bindDynamicEvents(summary) {
+        const main = document.getElementById('mainContent');
+
+        // Shared debtor card buttons
+        main.querySelectorAll('.btn-plus1').forEach(btn => {
+          btn.addEventListener('click', () => addQuickSale(btn.getAttribute('data-plus1'), 1));
+        });
+        main.querySelectorAll('.btn-pay').forEach(btn => {
+          btn.addEventListener('click', () => openPaymentModal(btn.getAttribute('data-pay')));
+        });
+        main.querySelectorAll('.btn-wa').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const st = summary.cStats[btn.getAttribute('data-wa')];
+            if (st) openWhatsAppForDebtor(st);
+          });
+        });
+        main.querySelectorAll('.btn-copy-bill').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const st = summary.cStats[btn.getAttribute('data-copy-bill')];
+            if (st) copyToClipboard(buildBillingMessage(st), `Cobrança de ${st.customer.name} copiada!`);
+          });
+        });
+        main.querySelectorAll('.btn-edit-c').forEach(btn => {
+          btn.addEventListener('click', () => openEditCustomerModal(btn.getAttribute('data-edit-c')));
+        });
+
+        // Hoje view controls
+        const btnCopyPix = main.querySelector('#btnCopyPixQuick');
+        if (btnCopyPix) {
+          btnCopyPix.addEventListener('click', () => {
+            if (state.settings.pixKey) {
+              copyToClipboard(state.settings.pixKey, 'Chave Pix copiada!');
+            } else {
+              state.ui.tab = 'ajustes';
+              render();
+            }
+          });
+        }
+        const btnOpen16hCard = main.querySelector('#btnOpen16hCard');
+        if (btnOpen16hCard) btnOpen16hCard.addEventListener('click', () => open16hModal(true));
+
+        const btnEmptyFirst = main.querySelector('#btnEmptyFirstSale');
+        if (btnEmptyFirst) btnEmptyFirst.addEventListener('click', () => openNewSaleModal());
+
+        const btnLoadSample = main.querySelector('#btnLoadSample');
+        if (btnLoadSample) btnLoadSample.addEventListener('click', loadSampleData);
+
+        const btnClearSample = main.querySelector('#btnClearSample');
+        if (btnClearSample) {
+          btnClearSample.addEventListener('click', () => {
+            state.customers = [];
+            state.transactions = [];
+            state.ui.isSampleData = false;
+            saveState();
+            render();
+            showToast('Dados de exemplo limpos! Pronto para uso real.');
+          });
+        }
+
+        const btnGoFiado = main.querySelector('#btnGoFiado');
+        if (btnGoFiado) {
+          btnGoFiado.addEventListener('click', () => {
+            state.ui.tab = 'fiado';
+            render();
+          });
+        }
+
+        // Fiado view controls
+        const searchInp = main.querySelector('#fiadoSearchInput');
+        if (searchInp) {
+          searchInp.addEventListener('input', (e) => {
+            const pos = e.target.selectionStart;
+            state.ui.fiadoSearch = e.target.value;
+            render();
+            const again = document.getElementById('fiadoSearchInput');
+            if (again) {
+              again.focus();
+              again.setSelectionRange(pos, pos);
+            }
+          });
+        }
+        main.querySelectorAll('.fiado-filter').forEach(btn => {
+          btn.addEventListener('click', () => {
+            state.ui.fiadoFilter = btn.getAttribute('data-ffilter');
+            render();
+          });
+        });
+
+        // Historico view controls
+        main.querySelectorAll('.hist-filter').forEach(btn => {
+          btn.addEventListener('click', () => {
+            state.ui.histFilter = btn.getAttribute('data-hfilter');
+            render();
+          });
+        });
+        main.querySelectorAll('.btn-del-tx').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const txId = btn.getAttribute('data-del-tx');
+            openConfirmModal(
+              'Excluir registro?',
+              'O saldo do cliente será recalculado automaticamente.',
+              'Excluir',
+              () => deleteTransaction(txId)
+            );
+          });
+        });
+
+        // Ajustes view controls
+        const btnSavePrice = main.querySelector('#btnSavePrice');
+        if (btnSavePrice) {
+          btnSavePrice.addEventListener('click', () => {
+            const val = parseFloat(String(main.querySelector('#setPrice').value).replace(',', '.'));
+            if (!val || val <= 0) { showToast('Informe um preço maior que zero', { tone: 'amber' }); return; }
+            state.settings.unitPrice = roundMoney(val);
+            saveState();
+            render();
+            showToast(`Preço atualizado para ${fmtBRL(state.settings.unitPrice)}`, { tone: 'success' });
+          });
+        }
+
+        const btnSavePix = main.querySelector('#btnSavePix');
+        if (btnSavePix) {
+          btnSavePix.addEventListener('click', () => {
+            state.settings.pixKey = (main.querySelector('#setPix').value || '').trim();
+            saveState();
+            render();
+            showToast('Chave Pix salva!', { tone: 'success' });
+          });
+        }
+
+        const setAlertTime = main.querySelector('#setAlertTime');
+        if (setAlertTime) {
+          setAlertTime.addEventListener('change', (e) => {
+            state.settings.alertTime = e.target.value || '16:00';
+            state.settings.lastAlertDate = '';
+            saveState();
+            render();
+            showToast(`Horário do alerta definido para ${state.settings.alertTime}`, { tone: 'success' });
+          });
+        }
+
+        const btnToggleNotif = main.querySelector('#btnToggleNotif');
+        if (btnToggleNotif) {
+          btnToggleNotif.addEventListener('click', () => {
+            if (!('Notification' in window)) {
+              showToast('Use o botão "Alarme celular (.ics)" para lembretes no aparelho.', { tone: 'amber' });
+              return;
+            }
+            if (Notification.permission === 'granted') {
+              state.settings.notificationsEnabled = !state.settings.notificationsEnabled;
+              saveState();
+              render();
+              showToast(state.settings.notificationsEnabled ? 'Notificações ativadas!' : 'Notificações pausadas');
+            } else {
+              Notification.requestPermission().then(perm => {
+                state.settings.notificationsEnabled = (perm === 'granted');
+                saveState();
+                render();
+                showToast(perm === 'granted' ? 'Notificações autorizadas!' : 'Permissão negada no navegador', { tone: perm === 'granted' ? 'success' : 'amber' });
+              }).catch(() => {
+                showToast('Use o lembrete (.ics) para receber o alerta no celular.', { tone: 'amber' });
+              });
+            }
+          });
+        }
+
+        const btnTest16h = main.querySelector('#btnTest16h');
+        if (btnTest16h) btnTest16h.addEventListener('click', () => trigger16hAlert(true));
+
+        const btnDownloadICS = main.querySelector('#btnDownloadICS');
+        if (btnDownloadICS) btnDownloadICS.addEventListener('click', downloadCalendarReminderICS);
+
+        const btnExportJson = main.querySelector('#btnExportJson');
+        if (btnExportJson) {
+          btnExportJson.addEventListener('click', () => {
+            const payload = JSON.stringify({
+              app: 'Din Din',
+              exportedAt: new Date().toISOString(),
+              settings: state.settings,
+              customers: state.customers,
+              transactions: state.transactions
+            }, null, 2);
+            downloadFile(payload, `dindin-backup-${todayISO()}.json`, 'application/json');
+            showToast('Backup salvo com sucesso!', { tone: 'success' });
+          });
+        }
+
+        const btnImportJson = main.querySelector('#btnImportJson');
+        if (btnImportJson) {
+          btnImportJson.addEventListener('click', () => {
+            document.getElementById('importJsonInput').click();
+          });
+        }
+
+        const btnExportCsv = main.querySelector('#btnExportCsv');
+        if (btnExportCsv) {
+          btnExportCsv.addEventListener('click', () => {
+            const rows = [['Data', 'Hora', 'Tipo', 'Cliente', 'Qtd', 'Unitario', 'Total', 'Sabor/Obs']];
+            [...state.transactions].sort((a, b) => a.timestamp - b.timestamp).forEach(t => {
+              const d = new Date(t.timestamp);
+              rows.push([
+                d.toLocaleDateString('pt-BR'),
+                fmtTime(t.timestamp),
+                t.type === 'payment' ? 'Pagamento' : t.type === 'sale_cash' ? 'Pago na hora' : 'Fiado',
+                `"${String(t.customerName || '').replace(/"/g, '""')}"`,
+                t.qty,
+                t.unitPrice.toFixed(2).replace('.', ','),
+                t.amount.toFixed(2).replace('.', ','),
+                `"${String(t.flavor || t.note || '').replace(/"/g, '""')}"`
+              ]);
+            });
+            const csv = '\uFEFF' + rows.map(r => r.join(';')).join('\r\n');
+            downloadFile(csv, `dindin-vendas-${todayISO()}.csv`, 'text/csv;charset=utf-8');
+            showToast('Planilha CSV exportada!', { tone: 'success' });
+          });
+        }
+
+        const btnInstallApp = main.querySelector('#btnInstallApp');
+        if (btnInstallApp) {
+          btnInstallApp.addEventListener('click', handleInstallClick);
+        }
+
+        const btnResetAll = main.querySelector('#btnResetAll');
+        if (btnResetAll) {
+          btnResetAll.addEventListener('click', () => {
+            openConfirmModal(
+              'Apagar todos os dados?',
+              'Isso vai remover todos os clientes e o histórico de vendas. O preço e a chave Pix serão mantidos.',
+              'Apagar tudo',
+              () => {
+                state.customers = [];
+                state.transactions = [];
+                state.ui.isSampleData = false;
+                saveState();
+                render();
+                showToast('Todos os registros foram apagados');
+              }
+            );
+          });
+        }
+      }
+
+      // Global static listeners
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.ui.tab = btn.getAttribute('data-tab');
+          render();
+          window.scrollTo({ top: 0, behavior: 'instant' });
+        });
+      });
+
+      document.getElementById('fabNewSale').addEventListener('click', () => openNewSaleModal());
+      document.getElementById('btnHeaderAlert').addEventListener('click', () => open16hModal(true));
+
+      document.getElementById('importJsonInput').addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const parsed = JSON.parse(String(reader.result || '{}'));
+            if (!Array.isArray(parsed.customers) || !Array.isArray(parsed.transactions)) {
+              throw new Error('Formato inválido');
+            }
+            state.settings = Object.assign({}, state.settings, parsed.settings || {});
+            state.customers = parsed.customers;
+            state.transactions = parsed.transactions;
+            state.ui.isSampleData = false;
+            saveState();
+            render();
+            showToast('Backup restaurado com sucesso!', { tone: 'success' });
+          } catch (err) {
+            showToast('Arquivo de backup inválido', { tone: 'danger' });
+          }
+          e.target.value = '';
+        };
+        reader.readAsText(file);
+      });
+
+      // PWA Install Helpers (Android & iOS)
+      let deferredInstallPrompt = null;
+
+      function isStandaloneApp() {
+        return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+      }
+
+      function isIOSDevice() {
+        return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      }
+
+      function openInstallGuideModal() {
+        const ios = isIOSDevice();
+        openModal(`
+          <div class="w-full max-w-[420px] bg-white rounded-t-3xl sm:rounded-3xl p-5 animate-slide-up shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2.5">
+                <img src="icons/icon-192.png" alt="Din Din" class="w-10 h-10 rounded-2xl object-cover shadow-xs" />
+                <div>
+                  <h2 class="text-base font-extrabold text-slate-900">Instalar o Din Din</h2>
+                  <p class="text-xs text-slate-500">Fica com ícone na tela inicial do celular</p>
+                </div>
+              </div>
+              <button type="button" id="mCloseInstall" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <div class="space-y-2.5 text-xs text-slate-700 mb-4">
+              <div class="p-3 rounded-2xl ${ios ? 'bg-brand-50 border border-brand-200' : 'bg-slate-50 border border-slate-200'}">
+                <div class="font-extrabold text-slate-900 mb-1">No iPhone (Safari)</div>
+                <ol class="list-decimal list-inside space-y-1">
+                  <li>Abra o link do Netlify no <strong>Safari</strong>.</li>
+                  <li>Toque no botão <strong>Compartilhar</strong> (quadrado com seta para cima).</li>
+                  <li>Toque em <strong>Adicionar à Tela de Início</strong> e confirme em <strong>Adicionar</strong>.</li>
+                </ol>
+              </div>
+              <div class="p-3 rounded-2xl ${!ios ? 'bg-brand-50 border border-brand-200' : 'bg-slate-50 border border-slate-200'}">
+                <div class="font-extrabold text-slate-900 mb-1">No Android (Chrome)</div>
+                <ol class="list-decimal list-inside space-y-1">
+                  <li>Abra o link do Netlify no <strong>Google Chrome</strong>.</li>
+                  <li>Toque no menu <strong>⋮</strong> no canto superior direito.</li>
+                  <li>Toque em <strong>Instalar aplicativo</strong> (ou <strong>Adicionar à tela inicial</strong>).</li>
+                </ol>
+              </div>
+            </div>
+            <button type="button" id="mOkInstall" class="tap-btn w-full py-3 rounded-2xl bg-brand-700 text-white font-bold text-sm">Entendi</button>
+          </div>
+        `, (mc) => {
+          mc.querySelector('#mCloseInstall').addEventListener('click', closeModal);
+          mc.querySelector('#mOkInstall').addEventListener('click', closeModal);
+        });
+      }
+
+      function handleInstallClick() {
+        if (deferredInstallPrompt) {
+          deferredInstallPrompt.prompt();
+          deferredInstallPrompt.userChoice.then((choice) => {
+            if (choice && choice.outcome === 'accepted') {
+              showToast('Din Din instalado na tela inicial!', { tone: 'success' });
+            }
+            deferredInstallPrompt = null;
+            render();
+          }).catch(() => openInstallGuideModal());
+        } else {
+          openInstallGuideModal();
+        }
+      }
+
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredInstallPrompt = e;
+        if (state.ui.tab === 'ajustes') render();
+      });
+
+      window.addEventListener('appinstalled', () => {
+        deferredInstallPrompt = null;
+        showToast('Din Din instalado com sucesso!', { tone: 'success' });
+        render();
+      });
+
+      if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./sw.js').catch(() => {});
+        });
+      }
+
+      // Init
+      render();
+      updateClockAndAlert();
+      if (clockInterval) clearInterval(clockInterval);
+      clockInterval = setInterval(updateClockAndAlert, 15000);
+    })();
+  </script>
+</body>
+</html>
